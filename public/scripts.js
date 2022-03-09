@@ -3,6 +3,8 @@ const deal = $(".deal");
 const stay = $(".stay");
 const userCardBox = $(".userCardBox");
 const dealerCardBox = $(".dealerCardBox");
+const modalUser = $("#modal-user-cardbox");
+const modalDealer = $("#modal-dealer-cardbox");
 const modal = $(".modal");
 const overlay = $(".overlay");
 const btnCloseModal = $(".close-modal");
@@ -16,9 +18,10 @@ var newDeck = `https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=${dec
 var userTotal = [];
 var dealerTotal = [];
 
-// declare variable to set image of first card dealt to dealer (face down)
+// intitialize variable to set image of first card dealt to dealer (face down)
 // reveal card when player stays
-let hiddenCard;
+// initialize variables for user and dealer final scores
+let hiddenCard, dealerFinalScore, userFinalScore;
 
 // asynchronous function to obtain deck_id. Game functionality wrapped in asynchronous function to avoid issues with reducing total scores before api has responded and pushed value to total
 const fetchDeck = async () => {
@@ -51,6 +54,8 @@ const fetchDeck = async () => {
             `<img src="${backOfCard}" class="backOfCard card" alt="dealer's unknown card">`
           );
 
+          modalDealer.append(`<img src="${image}" class="modal-card">`);
+
           if (value === "JACK" || value === "QUEEN" || value === "KING") {
             total.push(10);
           } else if (value === "ACE") {
@@ -70,6 +75,12 @@ const fetchDeck = async () => {
           }
 
           player.append(`<img src="${image}" class="card" alt="${value}">`);
+
+          if (player === userCardBox) {
+            modalUser.append(`<img src="${image}" class="modal-card">`);
+          } else {
+            modalDealer.append(`<img src="${image}" class="modal-card">`);
+          }
         }
       } catch (err) {
         console.log(err);
@@ -93,19 +104,16 @@ const fetchDeck = async () => {
               let ace = userTotal.indexOf(11);
               userTotal.splice(ace, 1);
               userTotal.push(1);
+              addTotal().then(async (scores) => {
+                if (scores[0] === 21) {
+                  dealerTurn();
+                }
+              });
             } else if (scores[0] > 21) {
-              // change this for modal window later
+              promptUser("You lose", "Bust");
               console.log("Bust, you lose.");
-              setTimeout(() => {
-                reset();
-              }, 2000);
             } else if (scores[0] === 21) {
-              // change this for modal window
-              // change this to run dealerTurn code as dealer can still potentially tie you
-              console.log("21! You win!");
-              setTimeout(() => {
-                reset();
-              }, 2000);
+              dealerTurn();
             }
           });
         }
@@ -124,11 +132,14 @@ const fetchDeck = async () => {
             let dealerScore = scores[1];
             if (userScore === 21 && dealerScore === 21) {
               revealHiddenCard();
+              promptUser("Tie", "Double Blackjack");
               console.log("Double Blackjack. Split pot");
             } else if (dealerScore === 21) {
               revealHiddenCard();
+              promptUser("You lose", "Dealer has Blackjack");
               console.log("Dealer has Blackjack. You lose");
             } else if (userScore === 21) {
+              promptUser("You Win!", "BlackJack!");
               console.log("BlackJack! You win!");
             } else if (userScore > 21) {
               let ace = userTotal.indexOf(11);
@@ -144,10 +155,103 @@ const fetchDeck = async () => {
 
     stay.click(() => {
       revealHiddenCard();
-      setTimeout(() => {
-        reset();
-      }, 1000);
+      dealerTurn();
     });
+    function dealerTurn() {
+      // this is aboslutely hideous but was done because I was unable to succesfully code a while loop that stipulated while dealerScore < 17 fetchcard and update dealerscore. All my attempts resulted in infinite loops.
+      addTotal().then(async (scores) => {
+        let dealerHas = scores[1];
+        if (dealerHas < 17) {
+          fetchCard(dealerCardBox, dealerTotal).then(async (res) => {
+            if (res === true) {
+              addTotal().then(async (scores) => {
+                dealerHas = scores[1];
+                userFinalScore = scores[0];
+                dealerFinalScore = scores[1];
+                if (dealerHas > 21 && dealerTotal.includes(11)) {
+                  let ace = dealerTotal.indexOf(11);
+                  dealerTotal.splice(ace, 1);
+                  dealerTotal.push(1);
+                  addTotal().then(async (scores) => {
+                    dealerHas = scores[1];
+                    userFinalScore = scores[0];
+                    dealerFinalScore = scores[1];
+                    if (dealerHas > 21 && dealerTotal.includes(11)) {
+                      let ace = dealerTotal.indexOf(11);
+                      dealerTotal.splice(ace, 1);
+                      dealerTotal.push(1);
+                      addTotal().then(async (scores) => {
+                        dealerHas = scores[1];
+                        userFinalScore = scores[0];
+                        dealerFinalScore = scores[1];
+                        finalScore();
+                      });
+                    } else if (dealerHas < 17) {
+                      fetchCard(dealerCardBox, dealerTotal).then(
+                        async (res) => {
+                          if (res === true) {
+                            addTotal().then(async (scores) => {
+                              dealerHas = scores[1];
+                              userFinalScore = scores[0];
+                              dealerFinalScore = scores[1];
+                              finalScore();
+                            });
+                          }
+                        }
+                      );
+                    }
+                  });
+                } else if (dealerHas < 17) {
+                  fetchCard(dealerCardBox, dealerTotal).then(async (res) => {
+                    if (res === true) {
+                      addTotal().then(async (scores) => {
+                        dealerHas = scores[1];
+                        userFinalScore = scores[0];
+                        dealerFinalScore = scores[1];
+                        if (dealerHas > 21 && dealerTotal.includes(11)) {
+                          let ace = dealerTotal.indexOf(11);
+                          dealerTotal.splice(ace, 1);
+                          dealerTotal.push(1);
+                          addTotal().then(async (scores) => {
+                            userFinalScore = scores[0];
+                            dealerFinalScore = scores[1];
+                            finalScore();
+                          });
+                        } else if (dealerHas < 17) {
+                          fetchCard(dealerCardBox, dealerTotal).then(
+                            async (res) => {
+                              if (res === true) {
+                                addTotal().then(async (scores) => {
+                                  userFinalScore = scores[0];
+                                  dealerFinalScore = scores[1];
+                                  finalScore();
+                                });
+                              }
+                            }
+                          );
+                        } else {
+                          userFinalScore = scores[0];
+                          dealerFinalScore = scores[1];
+                          finalScore();
+                        }
+                      });
+                    }
+                  });
+                } else {
+                  userFinalScore = scores[0];
+                  dealerFinalScore = scores[1];
+                  finalScore();
+                }
+              });
+            }
+          });
+        } else {
+          userFinalScore = scores[0];
+          dealerFinalScore = scores[1];
+          finalScore();
+        }
+      });
+    }
   });
 })();
 
@@ -162,13 +266,63 @@ function reset() {
   deal.removeClass("hidden");
   hit.addClass("hidden");
   stay.addClass("hidden");
+  modal.addClass("hidden");
+  overlay.addClass("hidden");
   userCardBox.empty();
   dealerCardBox.empty();
+  modalUser.empty();
+  modalDealer.empty();
   userTotal = [];
   dealerTotal = [];
 }
 
 function revealHiddenCard() {
   $(".backOfCard").remove();
-  dealerCardBox.prepend(`<img src="${hiddenCard}" alt="revealed card">`);
+  dealerCardBox.prepend(
+    `<img src="${hiddenCard}" class="card" alt="revealed card">`
+  );
+}
+
+function finalScore() {
+  if (dealerFinalScore > 21) {
+    promptUser("You win!", "Dealer busts");
+    console.log("Dealer busts. You win!");
+  } else if (userFinalScore === dealerFinalScore) {
+    promptUser("Push", "No winner");
+    console.log("Tie. No winner");
+  } else if (userFinalScore > dealerFinalScore) {
+    promptUser(
+      "You win!",
+      `You have ${userFinalScore}. Dealer has ${dealerFinalScore}`
+    );
+    console.log(
+      `You have ${userFinalScore}. Dealer has ${dealerFinalScore}. You win!`
+    );
+  } else if (userFinalScore < dealerFinalScore) {
+    promptUser(
+      "You lose",
+      `You have ${userFinalScore}. Dealer has ${dealerFinalScore}.`
+    );
+    console.log(
+      `You have ${userFinalScore}. Dealer has ${dealerFinalScore}. You lose`
+    );
+  } else {
+    promptUser(
+      "Haven't coded this possibility yet",
+      `You have ${userFinalScore}. Dealer has ${dealerFinalScore}`
+    );
+    console.log("Haven't coded this possibility yet");
+    console.log(`You have ${userFinalScore}. Dealer has ${dealerFinalScore}`);
+  }
+}
+
+btnCloseModal.click(() => {
+  reset();
+});
+
+function promptUser(header, body) {
+  modal.removeClass("hidden");
+  overlay.removeClass("hidden");
+  $("#modal-h1").text(header);
+  $("#modal-p").text(body);
 }

@@ -1,11 +1,134 @@
+body {
+  background-image: url(./images/table.jpeg);
+  background-size: 100%;
+  font-family: sans-serif;
+}
+
+.table {
+  position: relative;
+}
+
+.card {
+  height: 10rem;
+}
+
+.deal {
+  border: solid #787a91;
+  margin: 0;
+  cursor: pointer;
+  background-image: -webkit-linear-gradient(top, #f6d860, #f0a500);
+  background-image: -moz-linear-gradient(top, #f6d860, #f0a500);
+  background-image: -ms-linear-gradient(top, #f6d860, #f0a500);
+  background-image: -o-linear-gradient(top, #f6d860, #f0a500);
+  background-image: -webkit-gradient(to bottom, #f6d860, #f0a500);
+  color: #efefef;
+  font-size: 1.5rem;
+  position: absolute;
+  border-radius: 100px;
+  height: 5rem;
+  width: 5rem;
+  left: 672px;
+  top: 250px;
+}
+
+.deal:hover {
+  border: solid #787a91;
+  margin: 0;
+  cursor: pointer;
+  background-image: -webkit-linear-gradient(top, #e45826, #f0a500);
+  background-image: -moz-linear-gradient(top, #e45826, #f0a500);
+  background-image: -ms-linear-gradient(top, #e45826, #f0a500);
+  background-image: -o-linear-gradient(top, #e45826, #f0a500);
+  background-image: -webkit-gradient(to bottom, #e45826, #f0a500);
+  color: #efefef;
+  font-size: 1.5rem;
+  position: absolute;
+  border-radius: 100px;
+  height: 5rem;
+  width: 5rem;
+  left: 672px;
+  top: 250px;
+}
+
+.hit {
+  position: absolute;
+  border-radius: 100px;
+  height: 5rem;
+  width: 5rem;
+  left: 420px;
+  top: 535px;
+
+  background: #3e7c17;
+  background-image: -webkit-linear-gradient(top, #effffd, #125c13);
+  background-image: -moz-linear-gradient(top, #effffd, #125c13);
+  background-image: -ms-linear-gradient(top, #effffd, #125c13);
+  background-image: -o-linear-gradient(top, #effffd, #125c13);
+  background-image: -webkit-gradient(to bottom, #effffd, #125c13);
+}
+
+.hit:hover {
+  position: absolute;
+  border-radius: 100px;
+  height: 5rem;
+  width: 5rem;
+  left: 420px;
+  top: 535px;
+
+  cursor: pointer;
+  background: #3e7c17;
+  background-image: -webkit-linear-gradient(top, #b5fe83, #125c13);
+  background-image: -moz-linear-gradient(top, #b5fe83, #125c13);
+  background-image: -ms-linear-gradient(top, #b5fe83, #125c13);
+  background-image: -o-linear-gradient(top, #b5fe83, #125c13);
+  background-image: -webkit-gradient(to bottom, #b5fe83, #125c13);
+}
+
+.stay {
+  position: absolute;
+  border-radius: 100px;
+  height: 8rem;
+  width: 8rem;
+  right: 100px;
+  top: 535px;
+  font-size: 2rem;
+
+  border: solid #787a91;
+  color: #efefef;
+  background-image: -webkit-linear-gradient(top, #f6d860, #f0a500);
+  background-image: -moz-linear-gradient(top, #f6d860, #f0a500);
+  background-image: -ms-linear-gradient(top, #f6d860, #f0a500);
+  background-image: -o-linear-gradient(top, #f6d860, #f0a500);
+  background-image: -webkit-gradient(to bottom, #f6d860, #f0a500);
+}
+
+.stay:hover {
+  position: absolute;
+  border-radius: 100px;
+  height: 8rem;
+  width: 8rem;
+  right: 100px;
+  top: 535px;
+  font-size: 2rem;
+
+  border: solid #787a91;
+  color: #efefef;
+  background-image: -webkit-linear-gradient(top, #e45826, #f0a500);
+  background-image: -moz-linear-gradient(top, #e45826, #f0a500);
+  background-image: -ms-linear-gradient(top, #e45826, #f0a500);
+  background-image: -o-linear-gradient(top, #e45826, #f0a500);
+  background-image: -webkit-gradient(to bottom, #e45826, #f0a500);
+}
+
 .userCardBox {
-  background-color: bisque;
-  height: 300px;
+  position: absolute;
+  left: 575px;
+  top: 500px;
 }
 
 .dealerCardBox {
-  background-color: burlywood;
-  height: 300px;
+  position: absolute;
+  left: 575px;
+  top: 50px;
 }
 
 .backOfCard {
@@ -39,7 +162,9 @@
   width: 70%;
 
   background-color: white;
-  padding: 6rem;
+  padding: 1rem;
+  min-height: 15rem;
+  min-width: 15rem;
   border-radius: 5px;
   box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
   z-index: 10;
@@ -66,4 +191,35 @@
   color: #444;
   border-radius: 10rem;
   cursor: pointer;
+}
+
+#modal-prompt {
+  padding: 1rem;
+  margin: 0 auto 0 auto;
+  position: relative;
+  max-width: 15rem;
+  background-color: #019267;
+  border-right: solid black 3px;
+  min-height: 272px;
+  float: left;
+  height: 100%;
+}
+
+#modal-user-cardbox {
+  background-color: #00c897;
+  margin: auto 0 auto 0;
+}
+
+#modal-dealer-cardbox {
+  background-color: #00c897;
+  align-items: center;
+}
+
+#modal-h1 {
+  color: gold;
+}
+
+.modal-card {
+  height: 8.63rem;
+  padding: 5px;
 }
