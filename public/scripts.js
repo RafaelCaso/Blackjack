@@ -1,5 +1,6 @@
 const hit = $(".hit");
 const deal = $(".deal");
+const stay = $(".stay");
 const userCardBox = $(".userCardBox");
 const dealerCardBox = $(".dealerCardBox");
 const modal = $(".modal");
@@ -8,7 +9,7 @@ const btnCloseModal = $(".close-modal");
 const backOfCard = "./images/back.jpeg";
 
 // give option to play with more decks and change deck_count
-var deckCount = 1;
+var deckCount = 6;
 var newDeck = `https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=${deckCount}`;
 
 // append scores to totals and reduce totals to determine winner
@@ -73,6 +74,7 @@ const fetchDeck = async () => {
       } catch (err) {
         console.log(err);
       }
+      return true;
     };
 
     // consts seems pointless but this is the only way I could get app to wait for values to be pushed to totals before checking for natural 21s
@@ -84,11 +86,37 @@ const fetchDeck = async () => {
       return true;
     };
     hit.click(() => {
-      fetchCard(userCardBox, userTotal);
+      fetchCard(userCardBox, userTotal).then(async (res) => {
+        if (res === true) {
+          addTotal().then(async (scores) => {
+            if (scores[0] > 21 && userTotal.includes(11)) {
+              let ace = userTotal.indexOf(11);
+              userTotal.splice(ace, 1);
+              userTotal.push(1);
+            } else if (scores[0] > 21) {
+              // change this for modal window later
+              console.log("Bust, you lose.");
+              setTimeout(() => {
+                reset();
+              }, 2000);
+            } else if (scores[0] === 21) {
+              // change this for modal window
+              // change this to run dealerTurn code as dealer can still potentially tie you
+              console.log("21! You win!");
+              setTimeout(() => {
+                reset();
+              }, 2000);
+            }
+          });
+        }
+      });
     });
 
     // this is ugly but it finally works. AFTER api responds and values are pushed to totals it will automatically check for a natural 21 as per rules of Blackjack
     deal.click(async () => {
+      deal.addClass("hidden");
+      hit.removeClass("hidden");
+      stay.removeClass("hidden");
       const dealt = await init().then((res) => {
         if (res === true) {
           addTotal().then(async (scores) => {
@@ -102,6 +130,10 @@ const fetchDeck = async () => {
               console.log("Dealer has Blackjack. You lose");
             } else if (userScore === 21) {
               console.log("BlackJack! You win!");
+            } else if (userScore > 21) {
+              let ace = userTotal.indexOf(11);
+              userTotal.splice(ace, 1);
+              userTotal.push(1);
             } else {
               void 0;
             }
@@ -109,9 +141,17 @@ const fetchDeck = async () => {
         }
       });
     });
+
+    stay.click(() => {
+      revealHiddenCard();
+      setTimeout(() => {
+        reset();
+      }, 1000);
+    });
   });
 })();
 
+// not sure if async necessary
 const addTotal = async () => {
   let userScore = await userTotal.reduce((a, v) => a + v);
   let dealerScore = await dealerTotal.reduce((a, v) => a + v);
@@ -119,6 +159,9 @@ const addTotal = async () => {
 };
 
 function reset() {
+  deal.removeClass("hidden");
+  hit.addClass("hidden");
+  stay.addClass("hidden");
   userCardBox.empty();
   dealerCardBox.empty();
   userTotal = [];
